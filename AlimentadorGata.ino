@@ -3,6 +3,15 @@
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
 
+/**
+ * Customization variables
+ */
+#define SCREEN_GREETING "Hola Poque!"
+
+
+/**
+ * Do not edit below this point
+ */
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
@@ -33,45 +42,49 @@ void setup() {
 
   Wire.begin();
   RTC.begin();
-  // Check to see if the RTC is keeping time.  If it is, load the time from your computer.
-  if (! RTC.isrunning()) {
-    // This will reflect the time that your sketch was compiled
-    RTC.adjust(DateTime(__DATE__, __TIME__));
-  }
+  // This will reflect the time that your sketch was compiled
+  RTC.adjust(DateTime(__DATE__, __TIME__));
 }
 
-void loop() {
-  testdrawstyles();
-}
+void loop() {  
+  // Clear display
+  display.clearDisplay();  
+  // Start at top-left corner
+  display.setCursor(0,0);
 
-void testdrawstyles(void) {
-  
-  DateTime now = RTC.now();  
+  // Update greeting
+  update_greeting();
 
-  display.clearDisplay();
+  // Update time
+  update_time();
 
-  display.setTextSize(1);             // Normal 1:1 pixel scale
-  display.setTextColor(SSD1306_WHITE);        // Draw white text
-  display.setCursor(0,0);             // Start at top-left corner
-  display.println(F("Hello, world!"));
-
-  // display.setTextColor(SSD1306_BLACK, SSD1306_WHITE); // Draw 'inverse' text
-  // display.println(3.141592);
-
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);
-  display.print(now.day());
-  display.print('/');
-  display.print(now.month());
-  display.print('/');
-  display.print(now.year());
-  display.print(' ');
-  display.print(now.hour());
-  display.print(':');
-  display.print(now.minute());
-  display.print(':');
-  display.print(now.second());
-  
+  // Display & delay
   display.display();
   delay(1000);
+}
+
+void update_greeting(void) {
+
+  // Configure text; Normal 1:1 pixel scale
+  display.setTextSize(1);
+  // Draw 'inverse' text
+  display.setTextColor(SSD1306_BLACK, SSD1306_WHITE); 
+  // Display greeting
+  display.println(F(SCREEN_GREETING));
+}
+
+void update_time(void) {
+  // Get time
+  DateTime now = RTC.now();
+
+  // Configure text
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+
+  // Print time 
+  char buf3[] = "DDD, MMM DD YYYY";
+  display.println(now.toString(buf3));
+  char buf1[] = "hh:mm:ss";
+  display.setTextSize(2);
+  display.println(now.toString(buf1));
 }
