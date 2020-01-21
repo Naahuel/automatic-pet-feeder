@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
+#include <Stepper.h>
 
 /**
  * Customization variables
@@ -14,12 +15,14 @@
  */
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-
 #define OLED_MOSI   9
 #define OLED_CLK   10
 #define OLED_DC    11
 #define OLED_CS    12
 #define OLED_RESET 13
+
+
+const int STEPPER_SPR = 2048;
 
 // Init OLED
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
@@ -27,6 +30,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
 
 // Init RTC
 RTC_DS1307 RTC;
+
+// Init stepper
+Stepper plato = Stepper(STEPPER_SPR, 4, 6, 5, 7);
 
 void setup() {
 
@@ -60,7 +66,22 @@ void loop() {
 
   // Display & delay
   display.display();
-  delay(1000);
+
+  // Serve
+  serve();
+  delay(5000);
+}
+
+void serve(void) {
+  // Set stepper speed
+  plato.setSpeed(5);
+  // Move stepper 1/10 of a rotation
+  plato.step(STEPPER_SPR/10);
+  // Disable all coils to cool down
+  digitalWrite(4, LOW);
+  digitalWrite(5, LOW);
+  digitalWrite(6, LOW);
+  digitalWrite(7, LOW);
 }
 
 void update_greeting(void) {
