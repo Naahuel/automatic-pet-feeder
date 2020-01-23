@@ -15,26 +15,33 @@
  */
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define OLED_MOSI   9
-#define OLED_CLK   10
-#define OLED_DC    11
-#define OLED_CS    12
-#define OLED_RESET 13
+
+// PINS
+#define PIN_OLED_MOSI   9
+#define PIN_OLED_CLK   10
+#define PIN_OLED_DC    11
+#define PIN_OLED_CS    12
+#define PIN_OLED_RESET 13
+
+#define PIN_STEPPER_1 4
+#define PIN_STEPPER_2 6
+#define PIN_STEPPER_3 5
+#define PIN_STEPPER_4 7
 
 
 const int STEPPER_SPR = 2048;
 
-// Init OLED
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
-  OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
-
-// Init RTC
-RTC_DS1307 RTC;
-
-// Init stepper
-Stepper plato = Stepper(STEPPER_SPR, 4, 6, 5, 7);
-
 void setup() {
+
+  // Init OLED
+  Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
+    PIN_OLED_MOSI, PIN_OLED_CLK, PIN_OLED_DC, PIN_OLED_RESET, PIN_OLED_CS);
+
+  // Init RTC
+  RTC_DS1307 RTC;
+
+  // Init stepper
+  Stepper plato = Stepper(STEPPER_SPR, PIN_STEPPER_1, PIN_STEPPER_2, PIN_STEPPER_3, PIN_STEPPER_4);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC)) {
