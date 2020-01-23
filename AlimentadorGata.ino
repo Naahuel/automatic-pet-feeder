@@ -28,20 +28,28 @@
 #define PIN_STEPPER_3 5
 #define PIN_STEPPER_4 7
 
+#define PIN_BUTTON    2
 
 const int STEPPER_SPR = 2048;
 
+/**
+ * Inits
+ */
+
+// Init OLED
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
+  PIN_OLED_MOSI, PIN_OLED_CLK, PIN_OLED_DC, PIN_OLED_RESET, PIN_OLED_CS);
+
+// Init RTC
+RTC_DS1307 RTC;
+
+// Init stepper
+Stepper plato = Stepper(STEPPER_SPR, PIN_STEPPER_1, PIN_STEPPER_2, PIN_STEPPER_3, PIN_STEPPER_4);
+
 void setup() {
 
-  // Init OLED
-  Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT,
-    PIN_OLED_MOSI, PIN_OLED_CLK, PIN_OLED_DC, PIN_OLED_RESET, PIN_OLED_CS);
-
-  // Init RTC
-  RTC_DS1307 RTC;
-
-  // Init stepper
-  Stepper plato = Stepper(STEPPER_SPR, PIN_STEPPER_1, PIN_STEPPER_2, PIN_STEPPER_3, PIN_STEPPER_4);
+  // Init button
+  pinMode(PIN_BUTTON, INPUT_PULLUP);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC)) {
@@ -73,10 +81,14 @@ void loop() {
 
   // Display & delay
   display.display();
+  delay(1000);
 
-  // Serve
-  serve();
-  delay(5000);
+  // Serve with button
+  while( digitalRead(PIN_BUTTON) == LOW ) {
+    // Serve
+    turn();
+  }
+  disable_stepper();
 }
 
 void serve(void) {
@@ -84,11 +96,21 @@ void serve(void) {
   plato.setSpeed(5);
   // Move stepper 1/10 of a rotation
   plato.step(STEPPER_SPR/10);
+}
+
+void turn(void) {
+  // Set stepper speed
+  plato.setSpeed(5);
+  // Move stepper 5 steps
+  plato.step(5);
+}
+
+void disable_stepper(void) {
   // Disable all coils to cool down
-  digitalWrite(4, LOW);
-  digitalWrite(5, LOW);
-  digitalWrite(6, LOW);
-  digitalWrite(7, LOW);
+  digitalWrite(PIN_STEPPER_1, LOW);
+  digitalWrite(PIN_STEPPER_2, LOW);
+  digitalWrite(PIN_STEPPER_3, LOW);
+  digitalWrite(PIN_STEPPER_4, LOW);
 }
 
 void update_greeting(void) {
